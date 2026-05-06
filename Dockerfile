@@ -37,6 +37,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         curl \
         bcmath \
         exif \
+        fileinfo \
         ldap \
         soap \
         xml \
