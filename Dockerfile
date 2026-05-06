@@ -1,6 +1,6 @@
 FROM php:8.3-apache
 
-ARG CHAMILO_VERSION=2.0
+ARG CHAMILO_VERSION=2.0.0
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 ENV COMPOSER_ALLOW_SUPERUSER=1
@@ -21,10 +21,11 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libcurl4-openssl-dev \
     libldap2-dev \
-    libbz2-dev \
+    libsodium-dev \
+    libxslt1-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-configure ldap \
-    && docker-php-ext-install \
+    && docker-php-ext-install -j$(nproc) \
         intl \
         gd \
         zip \
@@ -33,10 +34,11 @@ RUN apt-get update && apt-get install -y \
         mbstring \
         opcache \
         curl \
-        xml \
-        ldap \
-        exif \
         bcmath \
+        exif \
+        ldap \
+        soap \
+        xml \
     && a2enmod rewrite headers env dir mime expires \
     && rm -rf /var/lib/apt/lists/*
 
@@ -53,7 +55,12 @@ WORKDIR /var/www/html
 RUN curl -L "https://github.com/chamilo/chamilo-lms/archive/refs/tags/v${CHAMILO_VERSION}.tar.gz" \
     | tar xz --strip-components=1
 
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN composer install \
+    --no-dev \
+    --optimize-autoloader \
+    --no-interaction \
+    --no-progress \
+    -vvv
 
 RUN if [ -f package.json ]; then \
       yarn install --immutable || yarn install; \
