@@ -1,0 +1,51 @@
+services:
+  chamilo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        CHAMILO_VERSION: ${CHAMILO_VERSION:-2.0}
+    environment:
+      APP_ENV: prod
+      APP_SECRET: ${SERVICE_BASE64_64_APPSECRET}
+      DATABASE_URL: mysql://chamilo:${SERVICE_PASSWORD_DB}@mariadb:3306/chamilo?serverVersion=mariadb-10.11
+      MAILER_DSN: ${MAILER_DSN:-null://null}
+      PHP_MEMORY_LIMIT: ${PHP_MEMORY_LIMIT:-512M}
+      PHP_UPLOAD_MAX_FILESIZE: ${PHP_UPLOAD_MAX_FILESIZE:-500M}
+      PHP_POST_MAX_SIZE: ${PHP_POST_MAX_SIZE:-500M}
+      PHP_MAX_EXECUTION_TIME: ${PHP_MAX_EXECUTION_TIME:-300}
+    volumes:
+      - chamilo_var:/var/www/html/var
+      - chamilo_upload:/var/www/html/public/upload
+      - chamilo_config:/var/www/html/config
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+  mariadb:
+    image: mariadb:10.11
+    environment:
+      MARIADB_DATABASE: chamilo
+      MARIADB_USER: chamilo
+      MARIADB_PASSWORD: ${SERVICE_PASSWORD_DB}
+      MARIADB_ROOT_PASSWORD: ${SERVICE_PASSWORD_DB_ROOT}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h localhost -u root -p$${MARIADB_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  mariadb_data:
+  chamilo_var:
+  chamilo_upload:
+  chamilo_config:
