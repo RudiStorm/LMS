@@ -62,6 +62,7 @@ RUN composer install \
     --optimize-autoloader \
     --no-interaction \
     --no-progress \
+    --no-scripts \
     -vvv
 
 RUN if [ -f package.json ]; then \
