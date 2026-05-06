@@ -41,9 +41,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         ldap \
         soap \
         xml \
-        dom \
-        simplexml \
-        xmlreader \
     && a2enmod rewrite headers env dir mime expires \
     && rm -rf /var/lib/apt/lists/*
 
