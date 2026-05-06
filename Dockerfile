@@ -5,7 +5,9 @@ ARG CHAMILO_VERSION=2.0.0
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-RUN apt-get update && apt-get install -y \
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     unzip \
     curl \
@@ -25,14 +27,13 @@ RUN apt-get update && apt-get install -y \
     libxslt1-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-configure ldap \
-    && docker-php-ext-install -j$(nproc) \
+    && docker-php-ext-install -j1 \
         intl \
         gd \
         zip \
         pdo \
         pdo_mysql \
         mbstring \
-        opcache \
         curl \
         bcmath \
         exif \
