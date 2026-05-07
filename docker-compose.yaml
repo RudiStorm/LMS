@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        CHAMILO_VERSION: ${CHAMILO_VERSION:-2.0}
+        CHAMILO_VERSION: ${CHAMILO_VERSION:-2.0.0}
     environment:
       APP_ENV: prod
       APP_SECRET: ${SERVICE_BASE64_64_APPSECRET}
